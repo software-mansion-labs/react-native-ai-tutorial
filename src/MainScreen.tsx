@@ -18,6 +18,7 @@ function MainScreen({ hasPermission }: { hasPermission: boolean }) {
             style={StyleSheet.absoluteFill}
             device={device}
             isActive
+            pixelFormat="rgb"
             frameProcessor={frameProcessor}
           />
         </View>
