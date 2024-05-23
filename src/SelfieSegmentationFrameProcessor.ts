@@ -1,3 +1,4 @@
+import { AlphaType, ColorType, Skia, SkRect } from '@shopify/react-native-skia';
 import { useTensorflowModel } from 'react-native-fast-tflite';
 import { Frame, useSkiaFrameProcessor } from 'react-native-vision-camera';
 import { useResizePlugin } from 'vision-camera-resize-plugin';
@@ -33,14 +34,40 @@ export const useFrameSelfieSegmentation = () => {
 
   const frameProcessor = useSkiaFrameProcessor((frame) => {
     'worklet';
-
     const mask = segment(frame);
 
-    if (mask !== null) {
-      console.log(mask.length);
+    if (mask == null) {
+      return;
     }
 
-    frame.render();
+    const data = Skia.Data.fromBytes(mask);
+
+    const maskImage = Skia.Image.MakeImage(
+      {
+        width: 256,
+        height: 256,
+        alphaType: AlphaType.Opaque,
+        colorType: ColorType.Gray_8,
+      },
+      data,
+      256
+    );
+    if (maskImage == null) {
+      return;
+    }
+
+    const srcRect: SkRect = { x: 0, y: 0, width: 256, height: 256 };
+
+    const dstRect: SkRect = {
+      x: 0,
+      y: 0,
+      width: frame.width,
+      height: frame.height,
+    };
+
+    const emptyPaint = Skia.Paint();
+
+    frame.drawImageRect(maskImage, srcRect, dstRect, emptyPaint);
   }, []);
 
   return { frameProcessor };
