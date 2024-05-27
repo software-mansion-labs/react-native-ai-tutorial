@@ -1,5 +1,6 @@
 import {
   AlphaType,
+  BlendMode,
   ColorType,
   Skia,
   SkRect,
@@ -76,7 +77,7 @@ export const useFrameSelfieSegmentation = () => {
           width: 256,
           height: 256,
           alphaType: AlphaType.Opaque,
-          colorType: ColorType.Gray_8,
+          colorType: ColorType.Alpha_8,
         },
         data,
         256
@@ -94,9 +95,10 @@ export const useFrameSelfieSegmentation = () => {
         height: frame.height,
       };
 
-      const emptyPaint = Skia.Paint();
+      const maskPaint = Skia.Paint();
+      maskPaint.setBlendMode(BlendMode.SrcOver);
 
-      frame.drawImageRect(maskImage, srcRect, dstRect, emptyPaint);
+      frame.drawImageRect(maskImage, srcRect, dstRect, maskPaint);
     },
     [segment]
   );
