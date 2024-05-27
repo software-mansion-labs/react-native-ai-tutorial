@@ -63,40 +63,40 @@ export const useFrameSelfieSegmentation = () => {
       paintBlur.setImageFilter(filterBlur);
       frame.render(paintBlur);
 
-      // const mask = segment(frame);
+      const mask = segment(frame);
 
-      // if (mask == null) {
-      //   return;
-      // }
+      if (mask == null) {
+        return;
+      }
 
-      // const data = Skia.Data.fromBytes(mask);
+      const data = Skia.Data.fromBytes(mask);
 
-      // const maskImage = Skia.Image.MakeImage(
-      //   {
-      //     width: 256,
-      //     height: 256,
-      //     alphaType: AlphaType.Opaque,
-      //     colorType: ColorType.Gray_8,
-      //   },
-      //   data,
-      //   256
-      // );
-      // if (maskImage == null) {
-      //   return;
-      // }
+      const maskImage = Skia.Image.MakeImage(
+        {
+          width: 256,
+          height: 256,
+          alphaType: AlphaType.Opaque,
+          colorType: ColorType.Gray_8,
+        },
+        data,
+        256
+      );
+      if (maskImage == null) {
+        return;
+      }
 
-      // const srcRect: SkRect = { x: 0, y: 0, width: 256, height: 256 };
+      const srcRect: SkRect = { x: 0, y: 0, width: 256, height: 256 };
 
-      // const dstRect: SkRect = {
-      //   x: 0,
-      //   y: 0,
-      //   width: frame.width,
-      //   height: frame.height,
-      // };
+      const dstRect: SkRect = {
+        x: 0,
+        y: 0,
+        width: frame.width,
+        height: frame.height,
+      };
 
-      // const emptyPaint = Skia.Paint();
+      const emptyPaint = Skia.Paint();
 
-      // frame.drawImageRect(maskImage, srcRect, dstRect, emptyPaint);
+      frame.drawImageRect(maskImage, srcRect, dstRect, emptyPaint);
     },
     [segment]
   );
