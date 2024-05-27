@@ -4,9 +4,10 @@ import {
   ColorType,
   Skia,
   SkRect,
+  SkSurface,
   TileMode,
 } from '@shopify/react-native-skia';
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { useTensorflowModel } from 'react-native-fast-tflite';
 import { Frame, useSkiaFrameProcessor } from 'react-native-vision-camera';
 import { useResizePlugin } from 'vision-camera-resize-plugin';
@@ -17,8 +18,6 @@ export const useFrameSelfieSegmentation = () => {
     'default'
   );
   const { resize } = useResizePlugin();
-
-  console.log(tf);
 
   const segment = useCallback(
     (frame: Frame) => {
@@ -95,10 +94,26 @@ export const useFrameSelfieSegmentation = () => {
         height: frame.height,
       };
 
-      const maskPaint = Skia.Paint();
-      maskPaint.setBlendMode(BlendMode.SrcOver);
+      const paintSrcIn = Skia.Paint();
+      paintSrcIn.setBlendMode(BlendMode.SrcIn);
 
-      frame.drawImageRect(maskImage, srcRect, dstRect, maskPaint);
+      const paintEmpty = Skia.Paint();
+
+      const auxiliarySkiaSurface = Skia.Surface.MakeOffscreen(
+        frame.width,
+        frame.height
+      );
+
+      const auxiliaryCanvas = auxiliarySkiaSurface?.getCanvas();
+
+      auxiliaryCanvas?.drawImageRect(maskImage, srcRect, dstRect, paintEmpty);
+      auxiliaryCanvas?.drawImage(frame.__skImage, 0, 0, paintSrcIn);
+      const snapshot = auxiliarySkiaSurface?.makeImageSnapshot();
+
+      if (snapshot) {
+        frame.drawImage(snapshot, 0, 0);
+      }
+      auxiliarySkiaSurface?.dispose();
     },
     [segment]
   );
