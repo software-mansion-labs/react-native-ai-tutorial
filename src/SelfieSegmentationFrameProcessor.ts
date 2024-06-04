@@ -97,7 +97,9 @@ export const useFrameSelfieSegmentation = () => {
       const paintSrcIn = Skia.Paint();
       paintSrcIn.setBlendMode(BlendMode.SrcIn);
 
-      const paintEmpty = Skia.Paint();
+      const paintMaskBlur = Skia.Paint();
+      const blurFilter = Skia.ImageFilter.MakeBlur(5, 5, TileMode.Clamp, null);
+      paintMaskBlur.setImageFilter(blurFilter);
 
       const auxiliarySkiaSurface = Skia.Surface.MakeOffscreen(
         frame.width,
@@ -106,7 +108,12 @@ export const useFrameSelfieSegmentation = () => {
 
       const auxiliaryCanvas = auxiliarySkiaSurface?.getCanvas();
 
-      auxiliaryCanvas?.drawImageRect(maskImage, srcRect, dstRect, paintEmpty);
+      auxiliaryCanvas?.drawImageRect(
+        maskImage,
+        srcRect,
+        dstRect,
+        paintMaskBlur
+      );
       auxiliaryCanvas?.drawImage(frame.__skImage, 0, 0, paintSrcIn);
       const snapshot = auxiliarySkiaSurface?.makeImageSnapshot();
 
